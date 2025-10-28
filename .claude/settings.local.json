@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir /A \"C:\\Users\\Eduar\\projects\\personal_website\")",
+      "mcp__playwright__browser_take_screenshot",
+      "Bash(npm run build:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

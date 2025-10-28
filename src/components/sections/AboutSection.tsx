@@ -40,52 +40,56 @@ export default function AboutSection() {
 
         {/* Bento Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Main Bio Card - 2x2 */}
-          <div className={`${cardClass} md:col-span-2 md:row-span-2`}>
+          {/* Who I Am - Top Left */}
+          <div className={`${cardClass} lg:col-span-2`}>
             <h3
               className={`text-2xl font-bold mb-4 ${
                 isDark ? 'text-slate-100' : 'text-slate-900'
               }`}
             >
-              Hi, I'm Eduard
+              Who I Am
             </h3>
             <p
-              className={`text-lg leading-relaxed ${
+              className={`text-base leading-relaxed ${
                 isDark ? 'text-slate-300' : 'text-slate-700'
               }`}
             >
-              I'm a quantitative developer and systems programmer with a passion for
-              building high-performance trading systems. My work focuses on developing
-              machine learning models for market analysis, implementing efficient
-              backtesting frameworks, and creating performance-critical applications
-              in Rust and C.
+              2A Mathematical Finance student at University of Waterloo. I build systems
+              that turn data into decisions—mostly around markets, optimization, and
+              pattern recognition.
             </p>
           </div>
 
-          {/* Achievement Card */}
-          <div className={`${cardClass} md:col-span-2`}>
-            <div className="text-center">
-              <div className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent mb-2">
-                71%
-              </div>
-              <p
-                className={`text-lg font-semibold ${
-                  isDark ? 'text-slate-300' : 'text-slate-700'
-                }`}
-              >
-                Out-of-Sample Accuracy
-              </p>
-              <p
-                className={`text-sm ${
-                  isDark ? 'text-slate-400' : 'text-slate-600'
-                }`}
-              >
-                Market regime classification model
-              </p>
-            </div>
+          {/* What I'm Looking For - Entire Right Side */}
+          <div className={`${cardClass} lg:col-span-2 lg:row-span-2`}>
+            <h4
+              className={`text-xl font-bold mb-4 ${
+                isDark ? 'text-slate-100' : 'text-slate-900'
+              }`}
+            >
+              What I'm Looking For
+            </h4>
+            <ul
+              className={`space-y-3 text-base ${
+                isDark ? 'text-slate-300' : 'text-slate-700'
+              }`}
+            >
+              <li className="flex items-start gap-3">
+                <span className="text-blue-600 mt-1">•</span>
+                <span>Co-op positions in quantitative research, data science, or financial engineering</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="text-blue-600 mt-1">•</span>
+                <span>Opportunities to build things that matter</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="text-blue-600 mt-1">•</span>
+                <span>Teams where I can learn from experienced practitioners</span>
+              </li>
+            </ul>
           </div>
 
-          {/* Location Card */}
+          {/* Location - Bottom Left */}
           <div className={cardClass}>
             <h4
               className={`text-xl font-bold mb-2 ${
@@ -99,18 +103,11 @@ export default function AboutSection() {
                 isDark ? 'text-slate-300' : 'text-slate-700'
               }`}
             >
-              Toronto, Canada
-            </p>
-            <p
-              className={`text-sm mt-2 ${
-                isDark ? 'text-slate-400' : 'text-slate-600'
-              }`}
-            >
-              Awaiting university admissions
+              Waterloo, ON
             </p>
           </div>
 
-          {/* Current Focus Card */}
+          {/* Current Focus - Bottom Left */}
           <div className={cardClass}>
             <h4
               className={`text-xl font-bold mb-2 ${
@@ -120,35 +117,16 @@ export default function AboutSection() {
               Current Focus
             </h4>
             <p
-              className={`${
+              className={`text-sm ${
                 isDark ? 'text-slate-300' : 'text-slate-700'
               }`}
             >
-              Building quantitative trading strategies
-            </p>
-          </div>
-
-          {/* Interests Card */}
-          <div className={`${cardClass} md:col-span-2`}>
-            <h4
-              className={`text-xl font-bold mb-2 ${
-                isDark ? 'text-slate-100' : 'text-slate-900'
-              }`}
-            >
-              Interests
-            </h4>
-            <p
-              className={`${
-                isDark ? 'text-slate-300' : 'text-slate-700'
-              }`}
-            >
-              Performance-critical applications, machine learning for finance,
-              systems programming, and low-level graphics programming
+              Risk management systems and ML for financial markets
             </p>
           </div>
 
           {/* Tech Stack Card - Full Width */}
-          <div className={`${cardClass} md:col-span-4`}>
+          <div className={`${cardClass} lg:col-span-4`}>
             <h4
               className={`text-xl font-bold mb-4 ${
                 isDark ? 'text-slate-100' : 'text-slate-900'

@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useTheme } from '../theme-provider';
 import { projects } from '@/data/projects';
 
-const AUTO_SCROLL_INTERVAL = 5000; // 5 seconds
+const AUTO_SCROLL_INTERVAL = 3000; // 20 seconds (4x slower)
 const PAUSE_DURATION = 8000; // 8 seconds after manual interaction
 
 export default function ProjectsSection() {
@@ -17,9 +17,14 @@ export default function ProjectsSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const autoScrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isAdvancingRef = useRef(false);
 
   const nextSlide = () => {
-    setCurrentIndex((prev) => (prev + 1) % projects.length);
+    setCurrentIndex((prev) => {
+      const next = (prev + 1) % projects.length;
+      console.log(`[NEXT BUTTON] currentIndex: ${prev} → ${next}`);
+      return next;
+    });
     setProgress(0);
     pauseAutoScroll();
   };
@@ -53,9 +58,30 @@ export default function ProjectsSection() {
     progressIntervalRef.current = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
-          setCurrentIndex((current) => (current + 1) % projects.length);
-          return 0;
+          if (!isAdvancingRef.current) {
+            // Set flag to prevent double-firing while state updates
+            isAdvancingRef.current = true;
+
+            // Advance to next slide inline - same logic as nextSlide button
+            setCurrentIndex((current) => {
+              const next = (current + 1) % projects.length;
+              console.log(`[AUTO-SCROLL] currentIndex: ${current} → ${next}`);
+              return next;
+            });
+
+            return 0;
+          } else {
+            // Flag is set, meaning we already advanced but state hasn't updated yet
+            // Force return 0 to prevent progress from going above 100
+            return 0;
+          }
         }
+
+        // Reset flag once progress is back below threshold
+        if (prev < 50 && isAdvancingRef.current) {
+          isAdvancingRef.current = false;
+        }
+
         return prev + (100 / (AUTO_SCROLL_INTERVAL / 100));
       });
     }, 100);
@@ -65,7 +91,7 @@ export default function ProjectsSection() {
         clearInterval(progressIntervalRef.current);
       }
     };
-  }, [isPaused, currentIndex]);
+  }, [isPaused]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -75,7 +101,101 @@ export default function ProjectsSection() {
     };
   }, []);
 
-  const currentProject = projects[currentIndex];
+  // Calculate position of each project relative to current
+  const getProjectPosition = (projectIndex: number) => {
+    const diff = ((projectIndex - currentIndex + projects.length) % projects.length);
+
+    if (diff === 0) return 'current';
+    if (diff === 1) return 'next';
+    if (diff === projects.length - 1) return 'prev';
+    return 'hidden';
+  };
+
+  // Helper to render a project card
+  const renderProjectCard = (project: typeof projects[0], index: number) => {
+    const position = getProjectPosition(index);
+    const isCenter = position === 'current';
+    const isPrev = position === 'prev';
+    const isNext = position === 'next';
+    const isHidden = position === 'hidden';
+
+    return (
+      <div
+        key={project.id}
+        className="absolute top-0 left-1/2 w-full max-w-2xl transition-all duration-700 ease-out"
+        style={{
+          transform: isCenter
+            ? 'translateX(-50%) scale(1) rotateY(0deg)'
+            : isPrev
+            ? 'translateX(calc(-50% + 400px)) scale(0.8) rotateY(-15deg)'
+            : isNext
+            ? 'translateX(calc(-50% - 400px)) scale(0.8) rotateY(15deg)'
+            : 'translateX(-50%) scale(0.5) rotateY(0deg)',
+          transformStyle: 'preserve-3d',
+          zIndex: isCenter ? 30 : 10,
+          opacity: isHidden ? 0 : isCenter ? 1 : 0.5,
+          pointerEvents: isHidden ? 'none' : 'auto',
+        }}
+      >
+        <div
+          className={`rounded-2xl overflow-hidden transition-all ${
+            isDark
+              ? 'bg-slate-800 shadow-xl'
+              : 'bg-white shadow-2xl'
+          }`}
+        >
+          {/* Project Image */}
+          <div className="relative h-48 md:h-64 bg-slate-700">
+            <Image
+              src={project.image}
+              alt={project.title}
+              fill
+              className="object-cover"
+              unoptimized
+            />
+          </div>
+
+          {/* Project Content - Fade in/out with center position */}
+          <div
+            className={`p-8 transition-all duration-500 ${
+              isCenter ? 'opacity-100' : 'opacity-0 pointer-events-none'
+            }`}
+          >
+            <h3
+              className={`text-3xl font-bold mb-4 ${
+                isDark ? 'text-slate-100' : 'text-slate-900'
+              }`}
+            >
+              {project.title}
+            </h3>
+            <p
+              className={`text-lg mb-6 ${
+                isDark ? 'text-slate-300' : 'text-slate-700'
+              }`}
+            >
+              {project.description}
+            </p>
+
+            {/* Tech Stack */}
+            <div className="flex flex-wrap gap-2">
+              {project.techStack.map((tech) => (
+                <span
+                  key={tech}
+                  className={`px-3 py-1 rounded-lg text-sm font-semibold ${
+                    isDark
+                      ? 'bg-slate-700 text-slate-300'
+                      : 'bg-slate-200 text-slate-700'
+                  }`}
+                >
+                  {tech}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <section
@@ -96,64 +216,18 @@ export default function ProjectsSection() {
 
         {/* Carousel Container */}
         <div className="relative">
-          {/* Project Card */}
+          {/* 3D Carousel Stack */}
           <div
-            className={`rounded-2xl overflow-hidden transition-all ${
-              isDark
-                ? 'bg-slate-800 shadow-xl'
-                : 'bg-white shadow-2xl'
-            }`}
+            className="relative h-[500px] md:h-[600px]"
+            style={{ perspective: '2000px' }}
           >
-            {/* Project Image */}
-            <div className="relative h-64 md:h-96 bg-slate-700">
-              <Image
-                src={currentProject.image}
-                alt={currentProject.title}
-                fill
-                className="object-cover"
-                unoptimized
-              />
-            </div>
-
-            {/* Project Content */}
-            <div className="p-8">
-              <h3
-                className={`text-3xl font-bold mb-4 ${
-                  isDark ? 'text-slate-100' : 'text-slate-900'
-                }`}
-              >
-                {currentProject.title}
-              </h3>
-              <p
-                className={`text-lg mb-6 ${
-                  isDark ? 'text-slate-300' : 'text-slate-700'
-                }`}
-              >
-                {currentProject.description}
-              </p>
-
-              {/* Tech Stack */}
-              <div className="flex flex-wrap gap-2">
-                {currentProject.techStack.map((tech) => (
-                  <span
-                    key={tech}
-                    className={`px-3 py-1 rounded-lg text-sm font-semibold ${
-                      isDark
-                        ? 'bg-slate-700 text-slate-300'
-                        : 'bg-slate-200 text-slate-700'
-                    }`}
-                  >
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            </div>
+            {projects.map((project, index) => renderProjectCard(project, index))}
           </div>
 
           {/* Navigation Buttons */}
           <button
             onClick={prevSlide}
-            className={`absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full transition-all ${
+            className={`absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full transition-all z-40 ${
               isDark
                 ? 'bg-slate-800 hover:bg-slate-700 text-slate-300'
                 : 'bg-white hover:bg-slate-100 text-slate-700 shadow-lg'
@@ -164,7 +238,7 @@ export default function ProjectsSection() {
           </button>
           <button
             onClick={nextSlide}
-            className={`absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full transition-all ${
+            className={`absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full transition-all z-40 ${
               isDark
                 ? 'bg-slate-800 hover:bg-slate-700 text-slate-300'
                 : 'bg-white hover:bg-slate-100 text-slate-700 shadow-lg'

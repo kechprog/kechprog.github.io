@@ -14,6 +14,7 @@ export const projects: Project[] = [
     ],
     techStack: ['Python', 'Pandas', 'NumPy'],
     githubUrl: 'https://github.com/kechprog/portfolio_optimizer',
+    liveUrl: 'https://portfolio-optimizer.app',
   },
   {
     id: 'trends',
@@ -56,6 +57,7 @@ export const projects: Project[] = [
     ],
     techStack: ['Rust', 'OpenGL'],
     githubUrl: 'https://github.com/kechprog/chess_engine',
+    liveUrl: 'https://kechprog.github.io/chess_engine/',
   },
   {
     id: 'dwl',
